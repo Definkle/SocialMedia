@@ -1,6 +1,6 @@
 import {faEnvelope} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   SafeAreaView,
@@ -8,67 +8,35 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {userStories} from './assets/constants/userStories';
 import {globalStyle} from './assets/styles/globalStyle';
 import {Title} from './components/Title/Title';
 import {UserStory} from './components/UserStory/UserStory';
 
 const App = () => {
-  const userStories = [
-    {
-      id: 1,
-      firstName: 'Joseph',
-      lastName: 'Williams',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 2,
-      firstName: 'Angel',
-      lastName: 'Blake',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 3,
-      firstName: 'White',
-      lastName: 'Andrews',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 4,
-      firstName: 'Oliver',
-      lastName: 'George',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 5,
-      firstName: 'Samantha',
-      lastName: 'Washington',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 6,
-      firstName: 'Michael',
-      lastName: 'Ivy',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 7,
-      firstName: 'James',
-      lastName: 'Gallagher',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 8,
-      firstName: 'Matthew',
-      lastName: 'Decker',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-    {
-      id: 9,
-      firstName: 'Mark',
-      lastName: 'Sanders',
-      profileImage: require('./assets/images/default_profile.png'),
-    },
-  ];
+  const userStoryPageSize = 4;
+  const [userStoriesCurrentPage, setUserStoriesCurrentPage] = useState(1);
+  const [userStoriesRenderedData, setUserStoriesRenderedData] = useState([]);
+  const [isLoadingUserStories, setIsLoadingUserStories] = useState(false);
+
+  const pagination = (database, currentPage, pageSize) => {
+    const startingIndex = (currentPage - 1) * pageSize;
+    const endingIndex = startingIndex + pageSize;
+
+    if (startingIndex >= database.length) {
+      return [];
+    }
+
+    return database.slice(startingIndex, endingIndex);
+  };
+
+  useEffect(() => {
+    setIsLoadingUserStories(true);
+    const getInitialUserStories = pagination(userStories, 1, userStoryPageSize);
+    setUserStoriesRenderedData(getInitialUserStories);
+    setIsLoadingUserStories(false);
+  }, []);
+
   return (
     <SafeAreaView>
       <View style={globalStyle.header}>
@@ -82,11 +50,36 @@ const App = () => {
       </View>
       <View style={globalStyle.userStoryContainer}>
         <FlatList
+          onEndReachedThreshold={0.5}
+          onEndReached={() => {
+            if (isLoadingUserStories) {
+              return;
+            }
+
+            setIsLoadingUserStories(true);
+
+            const userStoriesToAppend = pagination(
+              userStories,
+              userStoriesCurrentPage + 1,
+              userStoryPageSize,
+            );
+
+            if (userStoriesToAppend.length) {
+              setUserStoriesCurrentPage(userStoriesCurrentPage + 1);
+              setUserStoriesRenderedData(prevState => [
+                ...prevState,
+                ...userStoriesToAppend,
+              ]);
+            }
+
+            setIsLoadingUserStories(false);
+          }}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          data={userStories}
+          data={userStoriesRenderedData}
           renderItem={({item}) => (
             <UserStory
+              key={'userStory' + item.id}
               firstName={item.firstName}
               profileImage={item.profileImage}
             />
