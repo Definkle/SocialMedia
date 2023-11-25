@@ -8,6 +8,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Image, Text, View} from 'react-native';
+import {horizontalScale, scaleFontSize} from '../../assets/styles/scaling';
 import {UserProfileImage} from '../UserProfileImage/UserProfileImage';
 import {style} from './style';
 
@@ -20,7 +21,7 @@ export const UserPost = props => {
         <View style={style.userContainer}>
           <UserProfileImage
             profileImage={props.profileImage}
-            imageDimension={48}
+            imageDimension={horizontalScale(48)}
           />
           <View style={style.userTextContainer}>
             <Text style={style.username}>
@@ -31,7 +32,11 @@ export const UserPost = props => {
             )}
           </View>
         </View>
-        <FontAwesomeIcon icon={faEllipsisH} size={24} color={iconColor} />
+        <FontAwesomeIcon
+          icon={faEllipsisH}
+          size={scaleFontSize(24)}
+          color={iconColor}
+        />
       </View>
       <View style={style.postImage}>
         <Image source={props.image} />
