@@ -4,6 +4,7 @@ import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   SafeAreaView,
+  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -52,6 +53,7 @@ const App = () => {
 
   return (
     <SafeAreaView>
+      <StatusBar backgroundColor={'red'} barStyle={'light-content'} />
       <View style={globalStyle.userPostContainer}>
         <FlatList
           ListHeaderComponent={
